@@ -73,32 +73,20 @@ function dateWithinBusinessHours(date) {
 
 
 
-function calculateDueDate(submitDate, turnAroundTime) {
-    const dateSubmitted = new Date(submitDate);
-    let dateSubmittedAdjusted = dateWithinBusinessHours(dateSubmitted);
-    
+const { calculateDueDate } = require('./dueDataCalculator');
 
-    let hoursRemaining = turnAroundTime;
-    let dueDate = new Date(dateSubmittedAdjusted);
+test('calculates due date correctly for a simple case', () => {
+    const submitDate = new Date('2023-10-10T14:12:00Z'); // Example submit date
+    const turnAroundTime = 16; // Example turnaround time
+    const expectedDueDate = new Date('2023-10-12T18:12:00Z'); // Expected result
+    console.log(`Expected: ${expectedDueDate.toISOString()}`); // Log in UTC
+    expect(calculateDueDate(submitDate, turnAroundTime).toISOString()).toEqual(expectedDueDate.toISOString()); // Compare UTC times
+});
 
-    // while (hoursRemaining > 0) {
-    //     const hoursRemainingToday = 17 - dueDate.getHours(); // Hours left in the current workday
-
-    //     if (hoursRemaining <= hoursRemainingToday) {
-    //         dueDate.setHours(dueDate.getHours() + hoursRemaining);
-    //         hoursRemaining = 0; // All hours are consumed
-    //     } else {
-    //         dueDate.setHours(dueDate.getHours() + hoursRemainingToday);
-    //         hoursRemaining -= hoursRemainingToday; // Decrease remaining hours
-    //         dueDate.setDate(dueDate.getDate() + 1); // Move to the next day
-    //         dueDate = dateWithinBusinessHours(dueDate); // Ensure it's within business hours
-    //     }
-    // }
-    dueDate.setHours(dueDate.getHours() + hoursRemaining);
-    dueDate = dateWithinBusinessHours(dueDate);
-
-
-    return dueDate;
-}
-
-module.exports = { calculateDueDate }
+test('calculates due date correctly for a case that crosses a weekend', () => {
+    const submitDate = new Date('2023-10-06T14:12:00Z'); // Example submit date (Friday)
+    const turnAroundTime = 48; // 2 days
+    const expectedDueDate = new Date('2023-10-10T18:12:00Z'); // Expected result (Tuesday)
+    console.log(`Expected: ${expectedDueDate.toISOString()}`); // Log in UTC
+    expect(calculateDueDate(submitDate, turnAroundTime).toISOString()).toEqual(expectedDueDate.toISOString()); // Compare UTC times
+});
