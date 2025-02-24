@@ -35,38 +35,41 @@ function dateWithinBusinessHours(date) {
     const friday = 5;
     const monday = 1;
 
+    // Make a copy of the date to avoid modifying the original
+    let adjustedDate = new Date(date);
+
     // Move to Monday if it's Sunday or Saturday
     if (dateWeekday === 0 || dateWeekday === 6) {
-        console.log(`[Weekend Detected] Adjusting ${date.toLocaleString()} to next Monday at 9 AM`);
-        date.setDate(date.getDate() + (1 + (7 - dateWeekday)) % 7); // Move to next Monday
-        date.setHours(9);
-        console.log(`[Updated Date] ${date.toLocaleString()}`);
+        console.log(`[Weekend Detected] Adjusting ${adjustedDate.toLocaleString()} to next Monday at 9 AM`);
+        adjustedDate.setDate(adjustedDate.getDate() + (1 + (7 - dateWeekday)) % 7); // Move to next Monday
+        adjustedDate.setHours(9);
+        console.log(`[Updated Date] ${adjustedDate.toLocaleString()}`);
     } 
 
     // If it's Friday after 5 PM, move to Monday at 9 AM
     if (dateWeekday === friday && dateTime >= 17) {
-        console.log(`[Friday After 5 PM] Adjusting ${date.toLocaleString()} to Monday at 9 AM`);
-        date.setDate(date.getDate() + 3); // Move to Monday
-        date.setHours(9);
-        console.log(`[Updated Date] ${date.toLocaleString()}`);
+        console.log(`[Friday After 5 PM] Adjusting ${adjustedDate.toLocaleString()} to Monday at 9 AM`);
+        adjustedDate.setDate(adjustedDate.getDate() + 3); // Move to Monday
+        adjustedDate.setHours(9);
+        console.log(`[Updated Date] ${adjustedDate.toLocaleString()}`);
     }
 
     // If it's before 9 AM on any weekday, set to 9 AM
     if (dateTime < 9) {
-        console.log(`[Before 9 AM] Adjusting time to 9 AM for ${date.toLocaleString()}`);
-        date.setHours(9); 
-        console.log(`[Updated Date] ${date.toLocaleString()}`);
+        console.log(`[Before 9 AM] Adjusting time to 9 AM for ${adjustedDate.toLocaleString()}`);
+        adjustedDate.setHours(9); 
+        console.log(`[Updated Date] ${adjustedDate.toLocaleString()}`);
     }
 
     // If it's after 5 PM on any weekday, move to the next business day at 9 AM
     if (dateTime >= 17 && dateWeekday !== friday) {
-        console.log(`[After 5 PM] Moving ${date.toLocaleString()} to next business day at 9 AM`);
-        date.setDate(date.getDate() + 1); // Move to next day
-        date.setHours(9); 
-        console.log(`[Updated Date] ${date.toLocaleString()}`);
+        console.log(`[After 5 PM] Moving ${adjustedDate.toLocaleString()} to next business day at 9 AM`);
+        adjustedDate.setDate(adjustedDate.getDate() + 1); // Move to next day
+        adjustedDate.setHours(9); 
+        console.log(`[Updated Date] ${adjustedDate.toLocaleString()}`);
     }
 
-    return date;
+    return adjustedDate;
 }
 
 function calculateDueDate(submitDate, turnAroundTime) {
@@ -95,20 +98,15 @@ function calculateDueDate(submitDate, turnAroundTime) {
         if (hoursRemaining <= hoursToEndOfDay) {
             dueDate.setHours(dueDate.getHours() + hoursRemaining);
             hoursRemaining = 0;
+            console.log(`Final dueDate: ${dueDate.toISOString()}`);
         } else {
-            dueDate.setHours(17); // Set to the end of the business day
-            hoursRemaining -= hoursToEndOfDay; // Subtract the hours for the current day
-
-            // Move to the next business day at 9 AM
-            dueDate.setDate(dueDate.getDate() + 1);
-            dueDate.setHours(9);
-
-            // Skip weekends if the date is Saturday or Sunday
-            if (dueDate.getDay() === 0 || dueDate.getDay() === 6) {
-                dueDate = dateWithinBusinessHours(dueDate);
+            hoursRemaining -= hoursToEndOfDay;
+            dueDate.setHours(17); // Set to end of business day
+            if (dueDate.getDay() === 5) { // If it's Friday, move to Monday
+                dueDate.setDate(dueDate.getDate() + 3);
+            } else {
+                dueDate.setDate(dueDate.getDate() + 1); // Move to next day
             }
-
-            // Adjust the date within business hours
             dueDate = dateWithinBusinessHours(dueDate);
         }
 
