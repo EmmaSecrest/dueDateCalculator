@@ -1,32 +1,3 @@
-/* 
-Pseudo Code for CalculateDueDate:
-
-1. Start with the given submitDate and turnaroundTime (in working hours).
-
-2. Define business hours:
-    - Working hours: 9AM to 5PM, Monday to Friday.
-
-3. Check if submitDate is within business hours:
-    - If submitDate is before 9AM or after 5PM:
-        - Adjust submitDate to the next valid business hour (9AM the next day).
-    - If submitDate is within business hours:
-        - Proceed to the next step.
-
-4. Add turnaroundTime to submitDate:
-    - If turnaroundTime is less than or equal to the remaining hours of the current workday:
-        - Add the remaining hours of the current day to the submitDate.
-    - If turnaroundTime exceeds the remaining hours:
-        - Add the remaining hours to the submitDate and continue adding full workdays (8 hours per day).
-        - Move to the next valid business day (skip weekends and holidays).
-
-5. Handle weekends:
-    - After adding the full turnaround time, if the new date lands on a weekend (Saturday or Sunday):
-        - Adjust the date to the next Monday at 9AM.
-
-6. Return the resulting dueDate (submitDate + turnaroundTime).
-*/
-
-
 function dateWithinBusinessHours(date) {
     console.log(`\n[Initial Date] ${date.toLocaleString()}`);
 
