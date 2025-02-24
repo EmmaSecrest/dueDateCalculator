@@ -1,4 +1,4 @@
-const { calculateDueDate } = require('./dueDataCalculator');
+import calculateDueDate from "./dueDataCalculator";
 
 test('calculates due date correctly for a simple case', () => {
     const submitDate = new Date('2023-10-10T14:12:00Z'); // Example submit date

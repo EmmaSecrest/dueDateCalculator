@@ -72,20 +72,30 @@ function dateWithinBusinessHours(date) {
 
 
 
-
 function calculateDueDate(submitDate, turnAroundTime) {
     const dateSubmitted = new Date(submitDate);
     let dateSubmittedAdjusted = dateWithinBusinessHours(dateSubmitted);
-    
 
     let hoursRemaining = turnAroundTime;
     let dueDate = new Date(dateSubmittedAdjusted);
-    
-    dueDate.setHours(dueDate.getHours() + hoursRemaining);
-    dueDate = dateWithinBusinessHours(dueDate);
 
+    while (hoursRemaining > 0) {
+        let currentHour = dueDate.getHours();
+        let hoursToEndOfDay = 17 - currentHour;
+
+        if (hoursRemaining <= hoursToEndOfDay) {
+            dueDate.setHours(dueDate.getHours() + hoursRemaining);
+            hoursRemaining = 0;
+        } else {
+            dueDate.setHours(17);
+            hoursRemaining -= hoursToEndOfDay;
+            dueDate.setDate(dueDate.getDate() + 1);
+            dueDate.setHours(9);
+            dueDate = dateWithinBusinessHours(dueDate);
+        }
+    }
 
     return dueDate;
 }
 
-module.exports = { calculateDueDate }
+export default calculateDueDate;
