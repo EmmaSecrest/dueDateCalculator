@@ -69,9 +69,6 @@ function dateWithinBusinessHours(date) {
     return date;
 }
 
-
-
-
 function calculateDueDate(submitDate, turnAroundTime) {
     const dateSubmitted = new Date(submitDate);
     let dateSubmittedAdjusted = dateWithinBusinessHours(dateSubmitted);
@@ -79,23 +76,47 @@ function calculateDueDate(submitDate, turnAroundTime) {
     let hoursRemaining = turnAroundTime;
     let dueDate = new Date(dateSubmittedAdjusted);
 
+    console.log(`Initial dueDate: ${dueDate.toISOString()}`);
+    console.log(`Initial hoursRemaining: ${hoursRemaining}`);
+
+    // For zero or negative remaining hours, return the adjusted start date immediately
+    if (hoursRemaining <= 0) {
+        return dateWithinBusinessHours(dueDate);
+    }
+
     while (hoursRemaining > 0) {
         let currentHour = dueDate.getHours();
-        let hoursToEndOfDay = 17 - currentHour;
+        let hoursToEndOfDay = 17 - currentHour; // End of business hours for the day
+
+        console.log(`Current dueDate: ${dueDate.toISOString()}`);
+        console.log(`Current hoursRemaining: ${hoursRemaining}`);
+        console.log(`Current hoursToEndOfDay: ${hoursToEndOfDay}`);
 
         if (hoursRemaining <= hoursToEndOfDay) {
             dueDate.setHours(dueDate.getHours() + hoursRemaining);
             hoursRemaining = 0;
         } else {
-            dueDate.setHours(17);
-            hoursRemaining -= hoursToEndOfDay;
+            dueDate.setHours(17); // Set to the end of the business day
+            hoursRemaining -= hoursToEndOfDay; // Subtract the hours for the current day
+
+            // Move to the next business day at 9 AM
             dueDate.setDate(dueDate.getDate() + 1);
             dueDate.setHours(9);
+
+            // Skip weekends if the date is Saturday or Sunday
+            if (dueDate.getDay() === 0 || dueDate.getDay() === 6) {
+                dueDate = dateWithinBusinessHours(dueDate);
+            }
+
+            // Adjust the date within business hours
             dueDate = dateWithinBusinessHours(dueDate);
         }
+
+        console.log(`Updated dueDate: ${dueDate.toISOString()}`);
+        console.log(`Updated hoursRemaining: ${hoursRemaining}`);
     }
 
     return dueDate;
 }
 
-export default calculateDueDate;
+export { dateWithinBusinessHours, calculateDueDate };
