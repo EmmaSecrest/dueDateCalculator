@@ -1,4 +1,3 @@
-// dueDataCalculator.test.js
 import { calculateDueDate, dateWithinBusinessHours } from './dueDataCalculator';
 
 describe('calculateDueDate', () => {
